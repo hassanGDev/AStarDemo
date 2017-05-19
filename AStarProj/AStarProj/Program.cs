@@ -1,4 +1,5 @@
-﻿`using System;
+﻿using AStarProj.World;
+using System;
 
 namespace AStarProj
 {
@@ -6,7 +7,14 @@ namespace AStarProj
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            //build the map
+            MapManager mapManager = new MapManager(10,5);
+            mapManager.Setup();
+            Console.WriteLine(mapManager);
+
+            Console.ReadLine();
+
+
         }
     }
 }
