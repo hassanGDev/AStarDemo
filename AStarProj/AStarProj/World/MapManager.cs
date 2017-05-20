@@ -17,6 +17,11 @@ namespace AStarProj.World
         private int _obstacleCount;
         private Random _random; //classwide for a single seed, allows reproduction of maps.
 
+        public GridTile StartLocation { get { return this._startLocation; } }
+        public GridTile EndLocation { get { return this._endLocation; } }
+        public int MapSize { get { return this._mapSize; } }
+        public GridTile[,] MapTiles { get { return this._mapTiles; } }
+
         public MapManager(int mapSize, int obstacleCount, int? fixedSeed = null)
         {
             int seed = fixedSeed == null ? DateTime.Now.Millisecond : fixedSeed.Value;
@@ -49,7 +54,7 @@ namespace AStarProj.World
         private int PickLocation(int mapSize, bool includeBorders = false)
         {
             int borderBuffer = includeBorders ? 0 : 1;
-            return this._random.Next(1, this._mapSize - 1);
+            return this._random.Next(1, this._mapSize - borderBuffer);
         }
 
         private void InitStartEndPoints(int mapSize)
@@ -57,7 +62,7 @@ namespace AStarProj.World
             //always start left to right, if rotateChoice is true then rotate 90deg (e.g. top to bottom)
             bool rotateChoice = this._random.Next(2) > 0;
             this._startLocation = new GridTile { X = 0, Y = PickLocation(mapSize, true) };
-            this._endLocation = new GridTile { X = mapSize, Y = PickLocation(mapSize, true) };
+            this._endLocation = new GridTile { X = mapSize - 1, Y = PickLocation(mapSize, true) };
         }
 
         private void InitMap(int mapSize)
@@ -66,6 +71,7 @@ namespace AStarProj.World
             {
                 for (int x = 0; x < mapSize; x++)
                 {
+                    this._mapTiles[x, y] = new GridTile();
                     this._mapTiles[x, y].X = x;
                     this._mapTiles[x, y].Y = y;
                     //initially set all tiles to walkable

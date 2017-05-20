@@ -1,4 +1,5 @@
-﻿using AStarProj.World;
+﻿using AStarProj.Pathfinding;
+using AStarProj.World;
 using System;
 
 namespace AStarProj
@@ -14,7 +15,8 @@ namespace AStarProj
 
             Console.ReadLine();
 
-
+            PathSearcher ps = new PathSearcher(HeuristicTypes.Manhattan);
+            ps.SearchPath(mapManager.StartLocation, mapManager.EndLocation, mapManager.MapTiles, mapManager.MapSize);
         }
     }
 }

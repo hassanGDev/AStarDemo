@@ -6,10 +6,15 @@ using System.Threading.Tasks;
 
 namespace AStarProj.World
 {
-    public struct GridTile
+    public class GridTile
     {
+        public GridTile ParentTile;
+
         public int X;
         public int Y;
         public bool Walkable;
+        public float MovementCost;
     }
+
+    
 }
