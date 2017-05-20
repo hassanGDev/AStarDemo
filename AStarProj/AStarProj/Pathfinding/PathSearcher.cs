@@ -12,6 +12,7 @@ namespace AStarProj.Pathfinding
 
         private List<GridTile> _openList;
         private List<GridTile> _closedList;
+        private List<GridTile> _finalPath;
         private GridTile _currentOpenTile;
         private int _mapSize;
         private GridTile[,] _mapTiles;
@@ -33,9 +34,8 @@ namespace AStarProj.Pathfinding
             this._openList = new List<GridTile>();
             this._closedList = new List<GridTile>();
             this._currentOpenTile = startLocation;
-            
+
             this._openList.Add(startLocation);
-\
 
             FindPath(startLocation);
         }
@@ -48,23 +48,39 @@ namespace AStarProj.Pathfinding
                 currentTile = this._openList[0];
                 this._closedList.Add(currentTile);
                 this._openList.Remove(currentTile);
-                
+
                 this._openList.AddRange(GetNewTiles(currentTile));
-                if((endTile = CheckContainsEndTile(this._openList)) != null)
+                if ((endTile = CheckContainsEndTile(this._openList)) != null)
                 {
                     this._closedList.Add(endTile);
+                    CalculateFinalPath();
                     break;
                 }
                 this._openList.Sort((s1, s2) => s1.MovementCost.CompareTo(s2.MovementCost));
             }
         }
 
+        private void CalculateFinalPath()
+        {
+            this._finalPath = new List<GridTile>();
+            GridTile currentTile = this._closedList[this._closedList.Count - 1];
+            while(currentTile != this._closedList[0])
+            {
+                if(currentTile == null)
+                {
+                    break;
+                }
+                this._finalPath.Add(currentTile);
+                currentTile = currentTile.ParentTile;
+            }
+        }
+
         private GridTile CheckContainsEndTile(List<GridTile> openList)
         {
-            foreach(GridTile gt in openList)
+            foreach (GridTile gt in openList)
             {
-                if(gt.X == this._endlocation.X &&
-                    gt.Y == this._endlocation.Y )
+                if (gt.X == this._endlocation.X &&
+                    gt.Y == this._endlocation.Y)
                 {
                     return gt;
                 }
@@ -88,9 +104,9 @@ namespace AStarProj.Pathfinding
 
         private void CalculateTotalValues(List<GridTile> currentTiles)
         {
-            for(int i = 0; i < currentTiles.Count; i++)
+            for (int i = 0; i < currentTiles.Count; i++)
             {
-                currentTiles[i].MovementCost = this._heuristicCalculator.CalculateHeuristic(currentTiles[i].X, currentTiles[i].Y,this._endlocation.X, this._endlocation.Y);
+                currentTiles[i].MovementCost = this._heuristicCalculator.CalculateHeuristic(currentTiles[i].X, currentTiles[i].Y, this._endlocation.X, this._endlocation.Y);
             }
         }
 
@@ -98,10 +114,10 @@ namespace AStarProj.Pathfinding
         {
             List<GridTile> currentTiles = new List<GridTile>();
 
-            AddTileIfNotNull(currentTile.X - 1, currentTile.Y, currentTiles, SIDE_TILE_VALUE);
-            AddTileIfNotNull(currentTile.X + 1, currentTile.Y, currentTiles, SIDE_TILE_VALUE);
-            AddTileIfNotNull(currentTile.X, currentTile.Y - 1, currentTiles, SIDE_TILE_VALUE);
-            AddTileIfNotNull(currentTile.X, currentTile.Y + 1, currentTiles, SIDE_TILE_VALUE);
+            AddTileIfNotNull(currentTile, currentTile.X - 1, currentTile.Y, currentTiles, SIDE_TILE_VALUE);
+            AddTileIfNotNull(currentTile, currentTile.X + 1, currentTile.Y, currentTiles, SIDE_TILE_VALUE);
+            AddTileIfNotNull(currentTile, currentTile.X, currentTile.Y - 1, currentTiles, SIDE_TILE_VALUE);
+            AddTileIfNotNull(currentTile, currentTile.X, currentTile.Y + 1, currentTiles, SIDE_TILE_VALUE);
 
             return currentTiles;
         }
@@ -110,19 +126,24 @@ namespace AStarProj.Pathfinding
         {
             List<GridTile> currentTiles = new List<GridTile>();
 
-            AddTileIfNotNull(currentTile.X - 1, currentTile.Y - 1, currentTiles, CORNER_TILE_VALUE);
-            AddTileIfNotNull(currentTile.X - 1, currentTile.Y + 1, currentTiles, CORNER_TILE_VALUE);
-            AddTileIfNotNull(currentTile.X + 1, currentTile.Y - 1, currentTiles, CORNER_TILE_VALUE);
-            AddTileIfNotNull(currentTile.X + 1, currentTile.Y + 1, currentTiles, CORNER_TILE_VALUE);
+            AddTileIfNotNull(currentTile, currentTile.X - 1, currentTile.Y - 1, currentTiles, CORNER_TILE_VALUE);
+            AddTileIfNotNull(currentTile, currentTile.X - 1, currentTile.Y + 1, currentTiles, CORNER_TILE_VALUE);
+            AddTileIfNotNull(currentTile, currentTile.X + 1, currentTile.Y - 1, currentTiles, CORNER_TILE_VALUE);
+            AddTileIfNotNull(currentTile, currentTile.X + 1, currentTile.Y + 1, currentTiles, CORNER_TILE_VALUE);
 
             return currentTiles;
         }
 
-        private void AddTileIfNotNull(int x, int y, List<GridTile> listToAddTo, float tileValue)
+        private void AddTileIfNotNull(GridTile parentTile, int x, int y, List<GridTile> listToAddTo, float tileValue)
         {
             GridTile edgeTile = GetTile(x, y);
             if (edgeTile != null)
             {
+                if (this._openList.Contains(edgeTile) || this._closedList.Contains(edgeTile) || !edgeTile.Walkable)
+                {
+                    return;
+                }
+                edgeTile.ParentTile = parentTile;
                 edgeTile.MovementCost = tileValue;
                 listToAddTo.Add(edgeTile);
             }
@@ -130,12 +151,37 @@ namespace AStarProj.Pathfinding
 
         private GridTile GetTile(int x, int y)
         {
-            if (x < 0 || y < 0 || x > this._mapSize -1 || y > this._mapSize -1 )
+            if (x < 0 || y < 0 || x > this._mapSize - 1 || y > this._mapSize - 1)
             {
                 return null;
             }
 
             return this._mapTiles[x, y];
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int y = 0; y < this._mapSize; y++)
+            {
+                for (int x = 0; x < this._mapSize; x++)
+                {
+                    bool isPath = false;
+                    foreach(GridTile g in this._finalPath)
+                    {
+                        if (g.X == x && g.Y == y)
+                        {
+                            isPath = true;
+                        }
+                    }
+
+                    sb.Append(isPath ? "#" : "~");
+                }
+
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
         }
 
     }

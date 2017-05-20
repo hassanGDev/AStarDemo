@@ -36,13 +36,29 @@ namespace AStarProj.World
         {
             InitMap(this._mapSize);
             InitStartEndPoints(this._mapSize);
-            InitRandomObstacles(this._obstacleCount, this._mapSize);
+            InitFixedObstacles(this._mapSize);
+            //InitRandomObstacles(this._obstacleCount, this._mapSize);
+        }
+
+        private void InitFixedObstacles(int mapSize)
+        {
+            this._mapTiles[3, 2].Walkable = false;
+            this._mapTiles[4, 2].Walkable = false;
+            this._mapTiles[5, 2].Walkable = false;
+            this._mapTiles[5, 3].Walkable = false;
+            this._mapTiles[5, 4].Walkable = false;
+            this._mapTiles[5, 5].Walkable = false;
+            this._mapTiles[5, 6].Walkable = false;
+            this._mapTiles[5, 7].Walkable = false;
+            this._mapTiles[4, 7].Walkable = false;
+            this._mapTiles[3, 7].Walkable = false;
+
         }
 
         private void InitRandomObstacles(int obstacleCount, int mapSize)
         {
-            
-            for(int i =0; i< obstacleCount; i++)
+
+            for (int i = 0; i < obstacleCount; i++)
             {
                 // -1 as don't want obstacles on the edges
                 int xLocation = PickLocation(this._mapSize);
@@ -61,8 +77,16 @@ namespace AStarProj.World
         {
             //always start left to right, if rotateChoice is true then rotate 90deg (e.g. top to bottom)
             bool rotateChoice = this._random.Next(2) > 0;
-            this._startLocation = new GridTile { X = 0, Y = PickLocation(mapSize, true) };
-            this._endLocation = new GridTile { X = mapSize - 1, Y = PickLocation(mapSize, true) };
+
+            this._startLocation = new GridTile { X = 0, Y = 5 };
+            this._endLocation = new GridTile { X = mapSize - 1, Y = 5 };
+
+            //return this is afterwards
+            //this._startLocation = new GridTile { X = 0, Y = PickLocation(mapSize, true) };
+            //this._endLocation = new GridTile { X = mapSize - 1, Y = PickLocation(mapSize, true) };
+
+            this._mapTiles[this._startLocation.X, this._startLocation.Y].IsStartEndTile = true;
+            this._mapTiles[this._endLocation.X, this._endLocation.Y].IsStartEndTile = true;
         }
 
         private void InitMap(int mapSize)
@@ -87,8 +111,14 @@ namespace AStarProj.World
             {
                 for (int x = 0; x < this._mapSize; x++)
                 {
-                    if(this._mapTiles[x, y].Walkable)
+                    if (this._mapTiles[x, y].Walkable)
                     {
+                        if (this._mapTiles[x, y].IsStartEndTile)
+                        {
+                            sb.Append("@");
+                            continue;
+                        }
+
                         sb.Append(".");
                         continue;
                     }

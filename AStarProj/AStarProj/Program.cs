@@ -17,6 +17,9 @@ namespace AStarProj
 
             PathSearcher ps = new PathSearcher(HeuristicTypes.Manhattan);
             ps.SearchPath(mapManager.StartLocation, mapManager.EndLocation, mapManager.MapTiles, mapManager.MapSize);
+            Console.WriteLine(ps.ToString());
+
+            Console.ReadLine();
         }
     }
 }

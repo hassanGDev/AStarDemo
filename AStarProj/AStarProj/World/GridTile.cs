@@ -14,6 +14,7 @@ namespace AStarProj.World
         public int Y;
         public bool Walkable;
         public float MovementCost;
+        public bool IsStartEndTile;
     }
 
     
