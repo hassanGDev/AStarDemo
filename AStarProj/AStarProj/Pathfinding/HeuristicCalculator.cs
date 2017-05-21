@@ -6,13 +6,13 @@ namespace AStarProj.Pathfinding
 {
     class HeuristicCalculator
     {
-        private HeuristicTypes _hueristicType;
+        private EHeuristicTypes _hueristicType;
 
         /// <summary>
         /// Default constructor needs a hueristic, as we don't want it to change half way through
         /// </summary>
         /// <param name="heuristicType"></param>
-        public HeuristicCalculator(HeuristicTypes heuristicType)
+        public HeuristicCalculator(EHeuristicTypes heuristicType)
         {
             this._hueristicType = heuristicType;
         }
@@ -21,11 +21,11 @@ namespace AStarProj.Pathfinding
         {
             switch(this._hueristicType)
             {
-                case HeuristicTypes.Manhattan:
+                case EHeuristicTypes.Manhattan:
                     return CalculateManhattan(x, y, targetX, targetY);
-                case HeuristicTypes.Pythagorean:
+                case EHeuristicTypes.Pythagorean:
                     return CalculatePythagorean(x, y, targetX, targetY);
-                case HeuristicTypes.InfatedPythagorean:
+                case EHeuristicTypes.InfatedPythagorean:
                     return CalculateInflatedPythagorean(x, y, targetX, targetY);
             }
 
@@ -33,6 +33,9 @@ namespace AStarProj.Pathfinding
             return 0.0f;
         }
 
+        /// <summary>
+        /// based on the sum of the X & Y distance. Think about "blocks" in an American city.
+        /// </summary>        
         private float CalculateManhattan(float x, float y, float targetX, float targetY)
         {
             return Math.Abs(x - targetX) + Math.Abs(y - targetY);
@@ -52,7 +55,7 @@ namespace AStarProj.Pathfinding
         private float CalculateInflatedPythagorean(float x, float y, float targetX, float targetY)
         {
             double xSq = Math.Pow(x - targetX, 2);
-            double ySq = Math.Pow(y - targetX, 2);
+            double ySq = Math.Pow(y - targetY, 2);
 
             return (float)(xSq + ySq);
         }

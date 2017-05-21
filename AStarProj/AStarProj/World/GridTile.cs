@@ -12,9 +12,14 @@ namespace AStarProj.World
 
         public int X;
         public int Y;
-        public bool Walkable;
+
         public float MovementCost;
-        public bool IsStartEndTile;
+
+        //public bool Walkable;
+        //public bool IsStartEndTile;
+        public bool IsPath;
+
+        public ETileTypes TileType;
     }
 
     

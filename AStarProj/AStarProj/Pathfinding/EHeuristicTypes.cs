@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AStarProj.Pathfinding
 {
-    enum HeuristicTypes
+    public enum EHeuristicTypes
     {
         None,
         Manhattan,
